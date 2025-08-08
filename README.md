@@ -1,4 +1,4 @@
-# Little Book of Pipelines — Gradle, Metadata-Driven, DQ-Enforced
+# Book of Pipelines — Gradle, Metadata-Driven, DQ-Enforced
 
 This repository implements a improved version of the [Little Book of Pipelines](https://github.com/EcZachly/little-book-of-pipelines) pattern, adapted for **Gradle** multi-module builds and extended to handle real datasets with robust features:
 
@@ -65,7 +65,7 @@ This step takes the definitions in ItemGroupRegistry and writes them to the tabl
 
 # Run the metadata export job
 spark-submit \
-  --class com.acme.pipes.meta.ExportMetadata \
+  --class com.bruh.pipes.meta.ExportMetadata \
   modules/runner/build/libs/runner-all.jar
 ```
 
@@ -78,7 +78,7 @@ If `--inputPath` is omitted, jobs default to example paths (e.g. `/mnt/data/*.cs
 #### CRM Users (Record)
 ```bash
 spark-submit \
-  --class com.acme.pipes.jobs.record.CRMUsersJob \
+  --class com.bruh.pipes.jobs.record.CRMUsersJob \
   modules/runner/build/libs/runner-all.jar \
   --inputPath /mnt/data/crm_users.csv \
   --ds 2025-08-08
@@ -87,7 +87,7 @@ spark-submit \
 #### POS Transactions (Metrics)
 ```bash
 spark-submit \
-  --class com.acme.pipes.jobs.metrics.POSTransactionsJob \
+  --class com.bruh.pipes.jobs.metrics.POSTransactionsJob \
   modules/runner/build/libs/runner-all.jar \
   --inputPath /mnt/data/pos_transactions.csv \
   --ds 2025-08-08
@@ -96,7 +96,7 @@ spark-submit \
 #### Web Events (Event)
 ```bash
 spark-submit \
-  --class com.acme.pipes.jobs.events.WebEventsJob \
+  --class com.bruh.pipes.jobs.events.WebEventsJob \
   modules/runner/build/libs/runner-all.jar \
   --inputPath /mnt/data/web_events.csv \
   --ds 2025-08-08
