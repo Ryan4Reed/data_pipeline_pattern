@@ -1,0 +1,3 @@
+dependencies {
+  // put shared libs here if needed; spark-sql is already compileOnly in root
+}

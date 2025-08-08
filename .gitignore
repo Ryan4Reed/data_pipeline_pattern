@@ -1,0 +1,28 @@
+# Gradle
+.gradle/
+build/
+modules/*/build/
+
+# Metals (Scala language server)
+.metals/
+.metals.lock.db
+.metals.mv.db
+
+# Metals generated reports
+.metals/reports/
+
+# VS Code workspace settings
+.vscode/
+
+# IntelliJ IDEA
+.idea/
+*.iml
+out/
+
+# Spark / Hive local metadata
+spark-warehouse/
+.metastore_db/
+derby.log
+
+# Logs
+*.log

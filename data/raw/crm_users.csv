@@ -1,0 +1,11 @@
+user_id,email,signup_date,age,gender,loyalty_card_id,opted_in_marketing
+u001,user1@example.com,2023-03-01,34,F,L001,true
+u002,user2@example.com,2023-05-15,28,M,L002,false
+u003,user3@example,2024-01-20,45,F,L003,true
+u004,user4@domain.com,2024-04-01,38,M,null,true
+u005,user5@domain.com,2023-11-11,22,F,L004,false
+u006,,2024-05-10,31,M,L005,true
+u007,user7@example.com,2024-02-18,40,F,L006,true
+u008,user8@example.com,2023-12-21,35,M,L007,false
+u009,user9@example.com,2024-06-01,null,F,L008,true
+u010,user10@example.com,2023-07-30,27,M,L009,false

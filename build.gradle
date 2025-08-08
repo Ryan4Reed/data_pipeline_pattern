@@ -1,0 +1,44 @@
+plugins {
+    id('scala') apply false
+    id('com.github.johnrengelman.shadow') version '8.1.1' apply false
+}
+
+ext {
+    scalaBinary      = '2.12'                              // Spark 3.x => Scala 2.12
+    scalaVersion     = '2.12.18'
+    sparkVersion     = System.getenv('SPARK_VERSION') ?: '3.5.1'
+    scalatestVersion = '3.2.18'
+    slf4jVersion     = '2.0.13'
+}
+
+subprojects {
+
+    apply plugin: 'scala'
+
+    group   = 'com.acme.pipes'
+    version = '0.1.0'
+
+    repositories {
+        mavenCentral()
+    }
+
+    dependencies {
+        compileOnly       "org.apache.spark:spark-sql_${scalaBinary}:${sparkVersion}" // Provided by cluster runtime
+        implementation    "org.slf4j:slf4j-api:${slf4jVersion}"
+        runtimeOnly       "org.slf4j:slf4j-simple:${slf4jVersion}"
+        testImplementation "org.scalatest:scalatest_${scalaBinary}:${scalatestVersion}"
+    }
+
+    tasks.withType(ScalaCompile).configureEach {
+        scalaCompileOptions.additionalParameters = [
+            '-deprecation',
+            '-feature'
+        ]
+        sourceCompatibility = JavaVersion.VERSION_11
+        targetCompatibility = JavaVersion.VERSION_11
+    }
+
+    tasks.withType(Jar).configureEach {
+        duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    }
+}

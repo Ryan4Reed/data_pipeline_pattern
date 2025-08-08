@@ -1,0 +1,10 @@
+rootProject.name = "little-book-of-pipelines"
+
+include(":common", ":meta-authoring", ":events", ":metrics", ":ingestion", ":runner")
+
+project(":common").projectDir         = file("modules/common")
+project(":meta-authoring").projectDir = file("modules/meta-authoring")
+project(":events").projectDir         = file("modules/events")
+project(":metrics").projectDir        = file("modules/metrics")
+project(":ingestion").projectDir      = file("modules/ingestion")
+project(":runner").projectDir         = file("modules/runner")

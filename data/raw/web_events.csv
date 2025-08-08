@@ -1,0 +1,11 @@
+session_id,user_id,event_type,product_id,timestamp,device,location
+s001,u001,view_product,p001,2024-06-01 12:01:00,mobile,New York
+s002,u002,add_to_cart,p002,2024-06-01 12:02:00,desktop,Chicago
+s003,u003,view_product,p003,2024-06-01 12:03:00,mobile,San Jose
+s004,u001,click_ad,p999,2024-06-01 12:04:00,mobile,New York
+s005,u004,view_product,p004,2024-06-01 12:06:00,tablet,Austin
+s006,null,view_product,p005,2024-06-01 12:08:00,mobile,Unknown
+s007,u001,add_to_cart,p001,2024-06-01 12:09:00,desktop,New York
+s008,u005,checkout_start,p006,2024-06-01 12:11:00,mobile,Boston
+s009,u006,view_product,null,2024-06-01 12:12:00,mobile,New York
+s010,u002,view_product,p007,2024-06-01 12:13:00,desktop,Chicago
