@@ -1,3 +1,4 @@
+// modules/jobs/src/main/scala/com/bruh/pipes/jobs/CRMUsersJob.scala
 package com.bruh.pipes.jobs
 
 import org.apache.spark.sql.{DataFrame, SparkSession, functions => F}
@@ -29,21 +30,32 @@ object CRMUsersJob extends BaseJob with JobLogging {
   }
 
   def transform(inputs: Map[String,DataFrame], spark: SparkSession, meta: CommonMeta): DataFrame = {
-    import org.apache.spark.sql.functions._
-    val raw = inputs("raw")
-    val dsCol = coalesce(to_date(col("created_at")), lit(meta.ds))
+    val raw   = inputs("raw")
+    val dsCol = F.coalesce(F.to_date(F.col("created_at")), F.to_date(F.lit(meta.ds)))
     raw.withColumn("ds", dsCol)
        .select("user_id", "email", "country", "ds")
   }
 
   def write(df: DataFrame, spark: SparkSession, meta: CommonMeta): Unit = {
-    val item   = MetadataRepo.load(spark, domain, itemName)
-    val rules  = DQRunner.fromMetadata(item.dqRules.map(r => r.ruleType -> r.params))
+    val item  = MetadataRepo.load(spark, domain, itemName)
+    val rules = DQRunner.fromMetadata(item.dqRules.map(r => r.ruleType -> r.params))
     DQRunner.validate(df, rules, failFast = true)
 
     val staged = Writer.addIngestionMeta(df, meta.runId)
     val dedup  = Writer.dedupeByKeys(staged, keyColumns)
-    Writer.mergeIntoPartitioned(dedup, outputTable, keyColumns)(spark)
+
+    val pc   = partitionColumn // "ds" by default
+    val pval = meta.ds
+    val ready = dedup.withColumn(pc, F.lit(pval))
+    val singlePartition = ready.filter(F.col(pc) === F.lit(pval))
+
+    Writer.mergeIntoPartitioned(
+      df              = singlePartition,
+      targetTable     = outputTable,
+      keyColumns      = keyColumns,
+      partitionColumn = pc,
+      partitionValue  = pval
+    )(spark)
   }
 
   def main(args: Array[String]): Unit =

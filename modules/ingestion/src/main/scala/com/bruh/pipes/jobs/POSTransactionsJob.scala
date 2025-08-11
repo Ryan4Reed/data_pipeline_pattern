@@ -1,3 +1,4 @@
+// modules/jobs/src/main/scala/com/bruh/pipes/jobs/POSTransactionsJob.scala
 package com.bruh.pipes.jobs
 
 import org.apache.spark.sql.{DataFrame, SparkSession, functions => F}
@@ -31,25 +32,38 @@ object POSTransactionsJob extends BaseJob with JobLogging {
   }
 
   def transform(inputs: Map[String,DataFrame], spark: SparkSession, meta: CommonMeta): DataFrame = {
-    val raw = inputs("raw")
+    val raw   = inputs("raw")
+    val dsCol = F.coalesce(F.to_date(F.col("timestamp")), F.to_date(F.lit(meta.ds)))
     raw.select(
       F.col("transaction_id"),
       F.col("user_id"),
       F.col("store_id"),
-      F.col("amount").cast("double").as("amount"),
+      F.col("amount").as("amount"),
       F.col("currency"),
-      F.to_date(F.col("timestamp")).as("ds")
+      dsCol.as("ds")
     )
   }
 
   def write(df: DataFrame, spark: SparkSession, meta: CommonMeta): Unit = {
-    val item   = MetadataRepo.load(spark, domain, itemName)
-    val rules  = DQRunner.fromMetadata(item.dqRules.map(r => r.ruleType -> r.params))
+    val item  = MetadataRepo.load(spark, domain, itemName)
+    val rules = DQRunner.fromMetadata(item.dqRules.map(r => r.ruleType -> r.params))
     DQRunner.validate(df, rules, failFast = true)
 
     val staged = Writer.addIngestionMeta(df, meta.runId)
     val dedup  = Writer.dedupeByKeys(staged, keyColumns)
-    Writer.mergeIntoPartitioned(dedup, outputTable, keyColumns)(spark)
+
+    val pc   = partitionColumn
+    val pval = meta.ds
+    val ready = dedup.withColumn(pc, F.lit(pval))
+    val singlePartition = ready.filter(F.col(pc) === F.lit(pval))
+
+    Writer.mergeIntoPartitioned(
+      df              = singlePartition,
+      targetTable     = outputTable,
+      keyColumns      = keyColumns,
+      partitionColumn = pc,
+      partitionValue  = pval
+    )(spark)
   }
 
   def main(args: Array[String]): Unit =

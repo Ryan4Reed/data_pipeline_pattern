@@ -1,5 +1,6 @@
-package com.bruh.pipes.common.model
+package com.bruh.pipes.common
 case class CommonMeta(
+  domain: String,
   groupName: String,
   itemName: String,
   runId: String,

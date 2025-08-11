@@ -18,11 +18,15 @@ object ItemGroupRegistry {
       itemName = "crm_users",
       keyColumns = Seq("user_id"),
       dqRules = Seq(
+        // strings: presence/filled ratio
         DQRuleSpec(
-          "non_zero_ratio",
+          "filled_ratio",
           Map("column" -> "user_id", "min" -> "0.999")
         ),
-        DQRuleSpec("non_zero_ratio", Map("column" -> "email", "min" -> "0.98"))
+        DQRuleSpec(
+          "filled_ratio",
+          Map("column" -> "email", "min" -> "0.98")
+        )
       ),
       outputTable = "lake.silver.core_crm_users"
     ),
@@ -32,11 +36,16 @@ object ItemGroupRegistry {
       itemName = "pos_transactions",
       keyColumns = Seq("transaction_id"),
       dqRules = Seq(
+        // numerics: value_ratio expresses “filled AND amount > 0”
         DQRuleSpec(
-          "non_zero_ratio",
-          Map("column" -> "amount", "min" -> "0.98")
+          "value_ratio",
+          Map("column" -> "amount", "op" -> "gt", "value" -> "0.0", "min" -> "0.98")
         ),
-        DQRuleSpec("max_percentile", Map("column" -> "amount", "p" -> "0.999"))
+        // distribution guard: 99.9th percentile must be <= max
+        DQRuleSpec(
+          "max_percentile",
+          Map("column" -> "amount", "p" -> "0.999", "max" -> "5000")
+        )
       ),
       outputTable = "lake.silver.payments_pos_transactions"
     ),
@@ -47,7 +56,7 @@ object ItemGroupRegistry {
       keyColumns = Seq("event_id"),
       dqRules = Seq(
         DQRuleSpec(
-          "non_zero_ratio",
+          "filled_ratio",
           Map("column" -> "event_id", "min" -> "0.999")
         )
       ),

@@ -5,6 +5,7 @@ import org.apache.spark.sql.{DataFrame, SparkSession}
 trait BaseJob {
   def jobName: String
   def domain: String
+  def groupName: String
   def itemName: String
   def outputTable: String
   def keyColumns: Seq[String]

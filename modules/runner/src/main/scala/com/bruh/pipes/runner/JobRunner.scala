@@ -11,7 +11,7 @@ object JobRunner extends JobLogging {
     val ds    = args.getOrElse("ds", java.time.LocalDate.now.toString)
 
     val spark = SparkSession.builder.appName(job.jobName).getOrCreate()
-    val meta  = CommonMeta(job.domain, job.itemName, runId, ds, new java.sql.Timestamp(System.currentTimeMillis()))
+    val meta  = CommonMeta(job.domain, job.groupName, job.itemName, runId, ds, new java.sql.Timestamp(System.currentTimeMillis()))
 
     logInfo(s"Starting ${job.jobName} run_id=$runId ds=$ds table=${job.outputTable}")
     val inputs      = job.readSources(spark, args)

@@ -1,3 +1,4 @@
+// modules/jobs/src/main/scala/com/bruh/pipes/jobs/WebEventsJob.scala
 package com.bruh.pipes.jobs
 
 import org.apache.spark.sql.{DataFrame, SparkSession, functions => F}
@@ -5,7 +6,7 @@ import org.apache.spark.sql.types._
 import com.bruh.pipes.common.{CommonMeta, BaseJob}
 import com.bruh.pipes.common.logging.JobLogging
 import com.bruh.pipes.common.io.Writer
-import com.bruh.pipes.common.dq.{DQRunner}
+import com.bruh.pipes.common.dq.DQRunner
 import com.bruh.pipes.common.meta.MetadataRepo
 
 object WebEventsJob extends BaseJob with JobLogging {
@@ -30,24 +31,37 @@ object WebEventsJob extends BaseJob with JobLogging {
   }
 
   def transform(inputs: Map[String,DataFrame], spark: SparkSession, meta: CommonMeta): DataFrame = {
-    val raw = inputs("raw")
+    val raw   = inputs("raw")
+    val dsCol = F.coalesce(F.to_date(F.col("ts")), F.to_date(F.lit(meta.ds)))
     raw.select(
       F.col("event_id"),
       F.col("user_id"),
       F.col("event_type"),
-      F.to_date(F.col("ts")).as("ds"),
+      dsCol.as("ds"),
       F.col("props")
     )
   }
 
   def write(df: DataFrame, spark: SparkSession, meta: CommonMeta): Unit = {
-    val item   = MetadataRepo.load(spark, domain, itemName)
-    val rules  = DQRunner.fromMetadata(item.dqRules.map(r => r.ruleType -> r.params))
+    val item  = MetadataRepo.load(spark, domain, itemName)
+    val rules = DQRunner.fromMetadata(item.dqRules.map(r => r.ruleType -> r.params))
     DQRunner.validate(df, rules, failFast = true)
 
     val staged = Writer.addIngestionMeta(df, meta.runId)
     val dedup  = Writer.dedupeByKeys(staged, keyColumns)
-    Writer.mergeIntoPartitioned(dedup, outputTable, keyColumns)(spark)
+
+    val pc   = partitionColumn
+    val pval = meta.ds
+    val ready = dedup.withColumn(pc, F.lit(pval))
+    val singlePartition = ready.filter(F.col(pc) === F.lit(pval))
+
+    Writer.mergeIntoPartitioned(
+      df              = singlePartition,
+      targetTable     = outputTable,
+      keyColumns      = keyColumns,
+      partitionColumn = pc,
+      partitionValue  = pval
+    )(spark)
   }
 
   def main(args: Array[String]): Unit =
