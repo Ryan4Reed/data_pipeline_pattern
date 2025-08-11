@@ -14,7 +14,3 @@ trait BaseJob {
   def transform(inputs: Map[String,DataFrame], spark: SparkSession, meta: CommonMeta): DataFrame
   def write(df: DataFrame, spark: SparkSession, meta: CommonMeta): Unit
 }
-
-trait RecordJob extends BaseJob
-trait EventStreamJob extends BaseJob
-trait WideMetricJob extends BaseJob

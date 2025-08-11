@@ -2,13 +2,13 @@ package com.bruh.pipes.jobs
 
 import org.apache.spark.sql.{DataFrame, SparkSession, functions => F}
 import org.apache.spark.sql.types._
-import com.bruh.pipes.common.{CommonMeta, WideMetricJob}
+import com.bruh.pipes.common.{CommonMeta, BaseJob}
 import com.bruh.pipes.common.logging.JobLogging
 import com.bruh.pipes.common.meta.MetadataRepo
 import com.bruh.pipes.common.dq.DQRunner
 import com.bruh.pipes.common.io.Writer
 
-object POSTransactionsJob extends WideMetricJob with JobLogging {
+object POSTransactionsJob extends BaseJob with JobLogging {
   override val jobName     = "POSTransactionsJob"
   override val domain      = "payments"
   override val itemName    = "pos_transactions"

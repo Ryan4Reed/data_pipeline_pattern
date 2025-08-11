@@ -2,13 +2,13 @@ package com.bruh.pipes.jobs
 
 import org.apache.spark.sql.{DataFrame, SparkSession, functions => F}
 import org.apache.spark.sql.types._
-import com.bruh.pipes.common.{CommonMeta, RecordJob}
+import com.bruh.pipes.common.{CommonMeta, BaseJob}
 import com.bruh.pipes.common.logging.JobLogging
 import com.bruh.pipes.common.io.Writer
 import com.bruh.pipes.common.dq.DQRunner
 import com.bruh.pipes.common.meta.MetadataRepo
 
-object CRMUsersJob extends RecordJob with JobLogging {
+object CRMUsersJob extends BaseJob with JobLogging {
   override val jobName     = "CRMUsersJob"
   override val domain      = "core"
   override val itemName    = "crm_users"
