@@ -1,30 +1,31 @@
-package com.bruh.pipes.jobs.events
+package com.bruh.pipes.jobs
 
 import org.apache.spark.sql.{DataFrame, SparkSession, functions => F}
 import org.apache.spark.sql.types._
-import com.bruh.pipes.common.{CommonMeta, EventStreamJob}
+import com.bruh.pipes.common.{CommonMeta, WideMetricJob}
 import com.bruh.pipes.common.logging.JobLogging
-import com.bruh.pipes.common.io.Writer
-import com.bruh.pipes.common.dq.{DQRunner}
 import com.bruh.pipes.common.meta.MetadataRepo
+import com.bruh.pipes.common.dq.DQRunner
+import com.bruh.pipes.common.io.Writer
 
-object WebEventsJob extends EventStreamJob with JobLogging {
-  override val jobName     = "WebEventsJob"
-  override val domain      = "analytics"
-  override val itemName    = "web_events"
-  override val outputTable = "lake.silver.analytics_web_events"
-  override val keyColumns  = Seq("event_id")
+object POSTransactionsJob extends WideMetricJob with JobLogging {
+  override val jobName     = "POSTransactionsJob"
+  override val domain      = "payments"
+  override val itemName    = "pos_transactions"
+  override val outputTable = "lake.silver.payments_pos_transactions"
+  override val keyColumns  = Seq("transaction_id")
 
   private val schema = StructType(Seq(
-    StructField("event_id", StringType, nullable = false),
+    StructField("transaction_id", StringType, nullable = false),
     StructField("user_id", StringType, nullable = true),
-    StructField("ts", StringType, nullable = true),
-    StructField("event_type", StringType, nullable = true),
-    StructField("props", StringType, nullable = true)
+    StructField("store_id", StringType, nullable = true),
+    StructField("amount", DoubleType, nullable = true),
+    StructField("currency", StringType, nullable = true),
+    StructField("timestamp", StringType, nullable = true)
   ))
 
   def readSources(spark: SparkSession, args: Map[String,String]) = {
-    val input = args.getOrElse("inputPath", "/mnt/data/web_events.csv")
+    val input = args.getOrElse("inputPath", "/mnt/data/pos_transactions.csv")
     val df = spark.read.option("header","true").schema(schema).csv(input)
     Map("raw" -> df)
   }
@@ -32,11 +33,12 @@ object WebEventsJob extends EventStreamJob with JobLogging {
   def transform(inputs: Map[String,DataFrame], spark: SparkSession, meta: CommonMeta): DataFrame = {
     val raw = inputs("raw")
     raw.select(
-      F.col("event_id"),
+      F.col("transaction_id"),
       F.col("user_id"),
-      F.col("event_type"),
-      F.to_date(F.col("ts")).as("ds"),
-      F.col("props")
+      F.col("store_id"),
+      F.col("amount").cast("double").as("amount"),
+      F.col("currency"),
+      F.to_date(F.col("timestamp")).as("ds")
     )
   }
 

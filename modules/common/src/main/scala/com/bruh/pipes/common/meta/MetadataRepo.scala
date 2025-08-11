@@ -9,8 +9,7 @@ final case class ItemDefRow(
   itemName: String,
   keyColumns: Seq[String],
   dqRules: Seq[DQRuleRow],
-  outputTable: String,
-  shape: String
+  outputTable: String
 )
 
 object MetadataRepo {

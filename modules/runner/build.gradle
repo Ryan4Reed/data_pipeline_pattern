@@ -3,8 +3,6 @@ plugins { id('com.github.johnrengelman.shadow') }
 dependencies {
   implementation project(':common')
   implementation project(':meta-authoring')
-  implementation project(':events')
-  implementation project(':metrics')
   implementation project(':ingestion')
 }
 

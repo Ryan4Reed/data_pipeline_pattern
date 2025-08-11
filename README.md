@@ -3,7 +3,6 @@
 This repository implements a improved version of the [Little Book of Pipelines](https://github.com/EcZachly/little-book-of-pipelines) pattern, adapted for **Gradle** multi-module builds and extended to handle real datasets with robust features:
 
 ## Key Features
-- **Multiple output shapes:** `Record`, `Event`, `Metrics` — no forced single schema
 - **Code-first metadata** exported to a **metastore table** (`meta.item_defs_v1`)
 - **Data Quality (DQ) enforcement** before writes, driven by metadata
 - **Idempotent writes**:
@@ -32,8 +31,7 @@ This repository implements a improved version of the [Little Book of Pipelines](
                           │ Job startup
                           ▼
              ┌──────────────────────────┐
-             │  Job Runner (Record/     │
-             │  Event/Metrics job)      │
+             │  Job Runner │
              └────────────┬─────────────┘
                           │ Reads source data
                           ▼
@@ -75,28 +73,28 @@ Each job reads a dataset, applies transformations and DQ checks, then writes to 
 
 If `--inputPath` is omitted, jobs default to example paths (e.g. `/mnt/data/*.csv`).
 
-#### CRM Users (Record)
+#### CRM Users
 ```bash
 spark-submit \
-  --class com.bruh.pipes.jobs.record.CRMUsersJob \
+  --class com.bruh.pipes.jobs.CRMUsersJob \
   modules/runner/build/libs/runner-all.jar \
   --inputPath /mnt/data/crm_users.csv \
   --ds 2025-08-08
 ```
 
-#### POS Transactions (Metrics)
+#### POS Transactions
 ```bash
 spark-submit \
-  --class com.bruh.pipes.jobs.metrics.POSTransactionsJob \
+  --class com.bruh.pipes.jobs.POSTransactionsJob \
   modules/runner/build/libs/runner-all.jar \
   --inputPath /mnt/data/pos_transactions.csv \
   --ds 2025-08-08
 ```
 
-#### Web Events (Event)
+#### Web Events
 ```bash
 spark-submit \
-  --class com.bruh.pipes.jobs.events.WebEventsJob \
+  --class com.bruh.pipes.jobs.WebEventsJob \
   modules/runner/build/libs/runner-all.jar \
   --inputPath /mnt/data/web_events.csv \
   --ds 2025-08-08

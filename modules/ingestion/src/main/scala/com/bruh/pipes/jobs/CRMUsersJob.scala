@@ -1,4 +1,4 @@
-package com.bruh.pipes.jobs.record
+package com.bruh.pipes.jobs
 
 import org.apache.spark.sql.{DataFrame, SparkSession, functions => F}
 import org.apache.spark.sql.types._
